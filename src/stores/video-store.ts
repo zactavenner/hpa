@@ -10,6 +10,7 @@ interface VideoState {
   isPlaying: boolean;
   selectedCaptionId: string | null;
   selectedEffectId: string | null;
+  selectedGraphicId: string | null;
 
   createProject: (name: string, aspectRatio: VideoProject['aspectRatio']) => void;
   setVideoSrc: (src: string) => void;
@@ -32,6 +33,7 @@ interface VideoState {
   addMotionGraphic: (mg: MotionGraphic) => void;
   removeMotionGraphic: (id: string) => void;
   setMotionGraphics: (mgs: MotionGraphic[]) => void;
+  selectGraphic: (id: string | null) => void;
 
   setAspectRatio: (ratio: VideoProject['aspectRatio']) => void;
   clearProject: () => void;
@@ -43,6 +45,7 @@ export const useVideoStore = create<VideoState>()(persist((set, get) => ({
   isPlaying: false,
   selectedCaptionId: null,
   selectedEffectId: null,
+  selectedGraphicId: null,
 
   createProject: (name, aspectRatio) => {
     set({
@@ -139,12 +142,14 @@ export const useVideoStore = create<VideoState>()(persist((set, get) => ({
     if (p) set({ project: { ...p, motionGraphics: mgs, updatedAt: Date.now() } });
   },
 
+  selectGraphic: (id) => set({ selectedGraphicId: id }),
+
   setAspectRatio: (ratio) => {
     const p = get().project;
     if (p) set({ project: { ...p, aspectRatio: ratio, updatedAt: Date.now() } });
   },
 
-  clearProject: () => set({ project: null, currentTime: 0, isPlaying: false, selectedCaptionId: null, selectedEffectId: null }),
+  clearProject: () => set({ project: null, currentTime: 0, isPlaying: false, selectedCaptionId: null, selectedEffectId: null, selectedGraphicId: null }),
 }), {
   name: 'hpa-video',
   partialize: (state) => ({ project: state.project }),

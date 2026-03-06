@@ -24,6 +24,7 @@ import {
   LayoutGrid,
   Sparkles,
   PenTool,
+  Palette,
 } from 'lucide-react';
 
 const AD_TONES = [
@@ -52,11 +53,12 @@ export default function StaticAdStudio() {
   const [showProjects, setShowProjects] = useState(false);
   const [aiForm, setAiForm] = useState<{ topic: string; tone: 'professional' | 'casual' | 'urgent' | 'luxury' | 'playful' }>({ topic: '', tone: 'professional' });
   const [generating, setGenerating] = useState(false);
+  const [showBrandKit, setShowBrandKit] = useState(false);
 
   const handleCreateFromTemplate = async (templateId: string) => {
     setGenerating(true);
     const template = AD_TEMPLATES.find((t) => t.id === templateId)!;
-    const copy = await generateAdCopy('Your Product', 'professional', template.format);
+    const copy = await generateAdCopy(aiForm.topic || 'Your Product', aiForm.tone, template.format);
     const adProject = await composeStaticAd(templateId, copy);
     const key = getActiveKey();
     if (key) markKeyUsed(key.id);
@@ -297,6 +299,9 @@ export default function StaticAdStudio() {
           <button onClick={() => setShowTemplates(true)} className="btn-secondary flex items-center gap-1.5 text-sm py-2">
             <Wand2 className="w-4 h-4" /> Templates
           </button>
+          <button onClick={() => setShowBrandKit(true)} className="btn-secondary flex items-center gap-1.5 text-sm py-2">
+            <Palette className="w-4 h-4" /> Brand Kit
+          </button>
         </div>
       </div>
 
@@ -350,6 +355,79 @@ export default function StaticAdStudio() {
               </div>
             </button>
           ))}
+        </div>
+      </Modal>
+
+      {/* Brand Kit Modal */}
+      <Modal open={showBrandKit} onClose={() => setShowBrandKit(false)} title="Brand Kit">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Primary Color</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={project.brandKit.primaryColor}
+                onChange={(e) => updateBrandKit({ primaryColor: e.target.value })}
+                className="w-10 h-10 rounded-lg border border-surface-200 cursor-pointer"
+              />
+              <input
+                value={project.brandKit.primaryColor}
+                onChange={(e) => updateBrandKit({ primaryColor: e.target.value })}
+                className="input text-sm font-mono flex-1"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Secondary Color</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={project.brandKit.secondaryColor}
+                onChange={(e) => updateBrandKit({ secondaryColor: e.target.value })}
+                className="w-10 h-10 rounded-lg border border-surface-200 cursor-pointer"
+              />
+              <input
+                value={project.brandKit.secondaryColor}
+                onChange={(e) => updateBrandKit({ secondaryColor: e.target.value })}
+                className="input text-sm font-mono flex-1"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Accent Color</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={project.brandKit.accentColor}
+                onChange={(e) => updateBrandKit({ accentColor: e.target.value })}
+                className="w-10 h-10 rounded-lg border border-surface-200 cursor-pointer"
+              />
+              <input
+                value={project.brandKit.accentColor}
+                onChange={(e) => updateBrandKit({ accentColor: e.target.value })}
+                className="input text-sm font-mono flex-1"
+              />
+            </div>
+          </div>
+          <div className="border-t border-surface-100 pt-4">
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Heading Font</label>
+            <input
+              value={project.brandKit.fontHeading}
+              onChange={(e) => updateBrandKit({ fontHeading: e.target.value })}
+              className="input text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Body Font</label>
+            <input
+              value={project.brandKit.fontBody}
+              onChange={(e) => updateBrandKit({ fontBody: e.target.value })}
+              className="input text-sm"
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button onClick={() => setShowBrandKit(false)} className="btn-primary flex-1">Done</button>
+          </div>
         </div>
       </Modal>
     </div>

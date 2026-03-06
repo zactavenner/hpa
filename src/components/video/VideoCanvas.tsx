@@ -278,6 +278,82 @@ function MotionGraphicOverlay({ graphic, currentTime }: { graphic: MotionGraphic
         </div>
       );
 
+    case 'particle': {
+      const particles = Array.from({ length: 8 }, (_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        const dist = enterProgress * 60;
+        return {
+          x: 50 + Math.cos(angle + progress * 2) * dist,
+          y: 50 + Math.sin(angle + progress * 2) * dist,
+          size: 4 + Math.sin(progress * Math.PI * 3 + i) * 2,
+        };
+      });
+      return (
+        <div style={{ ...baseStyle, inset: 0, pointerEvents: 'none' }}>
+          {particles.map((p, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: p.size,
+                height: p.size,
+                borderRadius: '50%',
+                background: String(graphic.style.color) || '#facc15',
+                boxShadow: `0 0 6px ${String(graphic.style.color) || '#facc15'}`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    case 'sticker':
+      return (
+        <div
+          style={{
+            ...baseStyle,
+            top: '20%',
+            right: '10%',
+            transform: `rotate(${Math.sin(progress * Math.PI * 4) * 8}deg) scale(${0.8 + enterProgress * 0.2})`,
+            fontSize: Number(graphic.style.fontSize) || 56,
+            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))',
+          }}
+        >
+          {graphic.content}
+        </div>
+      );
+
+    case 'countdown': {
+      const total = graphic.endTime - graphic.startTime;
+      const remaining = Math.max(0, Math.ceil(total - (total * progress)));
+      const pulse = 1 + Math.sin(progress * Math.PI * (total * 2)) * 0.05;
+      return (
+        <div
+          style={{
+            ...baseStyle,
+            top: '50%',
+            left: '50%',
+            transform: `translate(-50%, -50%) scale(${pulse})`,
+            textAlign: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontSize: Number(graphic.style.fontSize) || 72,
+              fontWeight: 900,
+              color: String(graphic.style.color) || '#fff',
+              textShadow: '0 4px 24px rgba(0,0,0,0.5)',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {remaining}
+          </span>
+        </div>
+      );
+    }
+
     default:
       return null;
   }

@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, MouseEvent } from 'react';
 import { useVideoStore } from '@/stores/video-store';
-import { Clock, Type, Sparkles, Layers } from 'lucide-react';
+import { Clock, Type, Sparkles, Layers, X } from 'lucide-react';
 
 export default function Timeline() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -14,6 +14,9 @@ export default function Timeline() {
     selectCaption,
     selectedEffectId,
     selectEffect,
+    selectedGraphicId,
+    selectGraphic,
+    removeMotionGraphic,
   } = useVideoStore();
 
   const handleTrackClick = useCallback(
@@ -122,14 +125,27 @@ export default function Timeline() {
           {project.motionGraphics.map((mg) => (
             <div
               key={mg.id}
-              className="absolute top-1 bottom-1 bg-pink-500/20 border border-pink-400/30 rounded hover:bg-pink-500/30 cursor-pointer transition-colors"
+              className={`absolute top-1 bottom-1 rounded cursor-pointer transition-colors ${
+                selectedGraphicId === mg.id
+                  ? 'bg-pink-500/50 border border-pink-400 ring-1 ring-pink-400'
+                  : 'bg-pink-500/20 border border-pink-400/30 hover:bg-pink-500/30'
+              }`}
               style={{
                 left: `${toPercent(mg.startTime)}%`,
                 width: `${Math.max(toPercent(mg.endTime - mg.startTime), 1)}%`,
               }}
+              onClick={(ev) => { ev.stopPropagation(); selectGraphic(mg.id); }}
               title={`${mg.type}: ${mg.content}`}
             >
               <span className="text-[9px] text-pink-300 px-0.5">{mg.type}</span>
+              {selectedGraphicId === mg.id && (
+                <button
+                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center z-10 hover:bg-red-600"
+                  onClick={(ev) => { ev.stopPropagation(); removeMotionGraphic(mg.id); selectGraphic(null); }}
+                >
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              )}
             </div>
           ))}
         </div>
