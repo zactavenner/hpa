@@ -1,0 +1,103 @@
+'use client';
+
+import { useState } from 'react';
+import { useApiKeysStore } from '@/stores/api-keys-store';
+import {
+  LayoutDashboard,
+  Film,
+  Key,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+} from 'lucide-react';
+
+interface SidebarProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+const NAV_ITEMS = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'editor', label: 'Video Editor', icon: Film },
+  { id: 'keys', label: 'API Keys', icon: Key },
+];
+
+export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
+  const { getKeyStats } = useApiKeysStore();
+  const stats = getKeyStats();
+
+  return (
+    <aside
+      className={`
+        flex flex-col bg-white border-r border-surface-200 transition-all duration-300
+        ${collapsed ? 'w-16' : 'w-60'}
+      `}
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-4 h-16 border-b border-surface-200">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+          <Zap className="w-4 h-4 text-white" />
+        </div>
+        {!collapsed && (
+          <span className="font-bold text-lg text-surface-900">HPA Studio</span>
+        )}
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 p-2 space-y-1">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => onTabChange(item.id)}
+            className={`
+              w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 text-left
+              ${
+                activeTab === item.id
+                  ? 'bg-brand-50 text-brand-700 font-medium'
+                  : 'text-surface-600 hover:bg-surface-50 hover:text-surface-900'
+              }
+            `}
+          >
+            <item.icon className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span className="text-sm">{item.label}</span>}
+          </button>
+        ))}
+      </nav>
+
+      {/* Key status */}
+      {!collapsed && (
+        <div className="p-4 mx-3 mb-3 rounded-xl bg-surface-50 border border-surface-100">
+          <p className="text-xs font-medium text-surface-500 mb-2">API Keys</p>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full ${
+                    i < stats.active
+                      ? 'bg-green-500'
+                      : i < stats.total
+                        ? 'bg-yellow-500'
+                        : 'bg-surface-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-surface-500">
+              {stats.active}/{stats.total} active
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Collapse toggle */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="flex items-center justify-center h-10 border-t border-surface-200 text-surface-400 hover:text-surface-600 transition-colors"
+      >
+        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </button>
+    </aside>
+  );
+}
