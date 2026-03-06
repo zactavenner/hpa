@@ -21,13 +21,26 @@ export default function ApiKeyManager() {
   const [showAdd, setShowAdd] = useState(false);
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({ name: '', key: '', provider: 'openai' as ApiKey['provider'] });
+  const [addError, setAddError] = useState<string | null>(null);
 
   const handleAdd = () => {
     if (!form.name || !form.key) return;
+    setAddError(null);
+    if (keys.length >= 5) {
+      setAddError('Maximum of 5 API keys reached. Remove a key first.');
+      return;
+    }
+    if (keys.some((k) => k.key === form.key)) {
+      setAddError('This API key has already been added.');
+      return;
+    }
     const success = addKey(form.name, form.key, form.provider);
     if (success) {
       setForm({ name: '', key: '', provider: 'openai' });
       setShowAdd(false);
+      setAddError(null);
+    } else {
+      setAddError('Failed to add key. Maximum limit reached or duplicate key.');
     }
   };
 
@@ -187,8 +200,11 @@ export default function ApiKeyManager() {
               <option value="custom">Custom</option>
             </select>
           </div>
+          {addError && (
+            <div className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{addError}</div>
+          )}
           <div className="flex gap-3 pt-2">
-            <button onClick={() => setShowAdd(false)} className="btn-secondary flex-1">Cancel</button>
+            <button onClick={() => { setShowAdd(false); setAddError(null); }} className="btn-secondary flex-1">Cancel</button>
             <button onClick={handleAdd} className="btn-primary flex-1" disabled={!form.name || !form.key}>
               Add Key
             </button>

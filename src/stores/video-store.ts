@@ -1,6 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { VideoProject, Caption, VideoEffect, MotionGraphic } from '@/types';
 
 interface VideoState {
@@ -36,7 +37,7 @@ interface VideoState {
   clearProject: () => void;
 }
 
-export const useVideoStore = create<VideoState>()((set, get) => ({
+export const useVideoStore = create<VideoState>()(persist((set, get) => ({
   project: null,
   currentTime: 0,
   isPlaying: false,
@@ -144,4 +145,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
   },
 
   clearProject: () => set({ project: null, currentTime: 0, isPlaying: false, selectedCaptionId: null, selectedEffectId: null }),
+}), {
+  name: 'hpa-video',
+  partialize: (state) => ({ project: state.project }),
 }));

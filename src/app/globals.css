@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Nano Banana Pro — custom brand font for static ads */
+@font-face {
+  font-family: 'Nano Banana Pro';
+  src: local('Nano Banana Pro'), local('NanoBananaPro');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --gradient-brand: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
@@ -193,6 +201,24 @@
 .effect-shake { animation: shakeEffect 0.3s ease-in-out; }
 .effect-glitch { animation: glitchEffect 0.2s steps(1) 3; }
 .effect-flash { animation: flashEffect 0.15s ease-in-out; }
+
+/* Modal & UI animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in { animation: fadeIn 0.15s ease-out; }
+.animate-slide-up { animation: slideUp 0.2s ease-out; }
+.animate-pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

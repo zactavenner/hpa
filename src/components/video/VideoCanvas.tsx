@@ -98,10 +98,40 @@ function CaptionOverlay({ caption, currentTime }: { caption: Caption; currentTim
         return { transform: `translateX(-50%) translateY(${(1 - Math.min(progress * 5, 1)) * 20}px)`, opacity: Math.min(progress * 5, 1) };
       case 'pop':
         return { transform: `translateX(-50%) scale(${progress < 0.1 ? progress * 12 : progress < 0.2 ? 1.2 - (progress - 0.1) * 2 : 1})` };
+      case 'karaoke':
+        return {};
+      case 'word-by-word':
+        return {};
       default:
         return {};
     }
   })();
+
+  const renderText = () => {
+    if (caption.animation === 'karaoke') {
+      const highlightPos = progress * caption.text.length;
+      return (
+        <span className={`caption-text style-${caption.style}`}>
+          <span style={{ color: '#facc15' }}>{caption.text.slice(0, Math.floor(highlightPos))}</span>
+          <span>{caption.text.slice(Math.floor(highlightPos))}</span>
+        </span>
+      );
+    }
+    if (caption.animation === 'word-by-word') {
+      const words = caption.text.split(' ');
+      const visibleCount = Math.ceil(words.length * Math.min(progress * 1.5, 1));
+      return (
+        <span className={`caption-text style-${caption.style}`}>
+          {words.map((word, i) => (
+            <span key={i} style={{ opacity: i < visibleCount ? 1 : 0.15, transition: 'opacity 0.15s' }}>
+              {word}{i < words.length - 1 ? ' ' : ''}
+            </span>
+          ))}
+        </span>
+      );
+    }
+    return <span className={`caption-text style-${caption.style}`}>{caption.text}</span>;
+  };
 
   return (
     <div
@@ -111,7 +141,7 @@ function CaptionOverlay({ caption, currentTime }: { caption: Caption; currentTim
         ...animationStyle,
       }}
     >
-      <span className={`caption-text style-${caption.style}`}>{caption.text}</span>
+      {renderText()}
     </div>
   );
 }

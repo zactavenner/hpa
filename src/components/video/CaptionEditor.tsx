@@ -92,6 +92,8 @@ export default function CaptionEditor() {
             <option value="bounce">Bounce</option>
             <option value="slide-up">Slide Up</option>
             <option value="pop">Pop</option>
+            <option value="karaoke">Karaoke</option>
+            <option value="word-by-word">Word by Word</option>
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
         </div>
