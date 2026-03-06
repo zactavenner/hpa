@@ -1,7 +1,7 @@
 'use client';
 
 import { useVideoStore } from '@/stores/video-store';
-import { Caption, CaptionStyle } from '@/types';
+import { Caption, CaptionStyle, CaptionAnimation } from '@/types';
 import { Type, X, ChevronDown } from 'lucide-react';
 
 export default function CaptionEditor() {

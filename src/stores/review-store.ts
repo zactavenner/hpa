@@ -11,7 +11,7 @@ interface ReviewState {
     priority: ReviewItem['priority'] | 'all';
     search: string;
   };
-  addItem: (item: Omit<ReviewItem, 'id' | 'createdAt' | 'updatedAt' | 'aiSummary'>) => void;
+  addItem: (item: Omit<ReviewItem, 'id' | 'createdAt' | 'updatedAt' | 'aiSummary' | 'comments'>) => void;
   updateItem: (id: string, updates: Partial<ReviewItem>) => void;
   removeItem: (id: string) => void;
   setFilter: (filter: Partial<ReviewState['filter']>) => void;
@@ -30,6 +30,7 @@ export const useReviewStore = create<ReviewState>()(
           ...item,
           id: crypto.randomUUID(),
           aiSummary: null,
+          comments: [],
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };

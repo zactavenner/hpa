@@ -2,8 +2,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { BatchJob, BatchConfig, ScriptStyle, VideoProject } from '@/types';
-import { autoBuildVideo } from '@/lib/ai-service';
+import { BatchJob, BatchConfig, ScriptStyle, VideoProject, BatchJobType, AdFormat } from '@/types';
+import { autoBuildVideo, autoBuildStaticAd } from '@/lib/ai-service';
 import { VIRAL_TEMPLATES } from '@/lib/viral-templates';
 
 interface BatchState {
@@ -11,14 +11,16 @@ interface BatchState {
   config: BatchConfig;
   isProcessing: boolean;
 
-  addJob: (topic: string, scriptStyle: ScriptStyle, templateId: string, duration: number) => string;
-  addBulkJobs: (topics: string[], scriptStyle: ScriptStyle, templateId: string, duration: number) => string[];
+  addVideoJob: (topic: string, scriptStyle: ScriptStyle, templateId: string, duration: number) => string;
+  addAdJob: (topic: string, templateId: string, format: AdFormat) => string;
+  addBulkVideoJobs: (topics: string[], scriptStyle: ScriptStyle, templateId: string, duration: number) => string[];
+  addBulkAdJobs: (topics: string[], templateId: string, format: AdFormat) => string[];
   removeJob: (id: string) => void;
   clearCompleted: () => void;
   clearAll: () => void;
   updateConfig: (updates: Partial<BatchConfig>) => void;
   processQueue: () => Promise<void>;
-  getStats: () => { total: number; queued: number; processing: number; complete: number; error: number };
+  getStats: () => { total: number; queued: number; processing: number; complete: number; error: number; videos: number; ads: number };
 }
 
 export const useBatchStore = create<BatchState>()(
@@ -31,68 +33,77 @@ export const useBatchStore = create<BatchState>()(
         defaultDuration: 30,
         defaultScriptStyle: 'viral' as ScriptStyle,
         defaultTemplateId: 'tiktok-storytelling',
+        defaultAdTemplateId: 'product-showcase',
+        defaultAdFormat: 'instagram-post' as AdFormat,
+        defaultFontPreset: 'nano-banana-pro',
       },
       isProcessing: false,
 
-      addJob: (topic, scriptStyle, templateId, duration) => {
+      addVideoJob: (topic, scriptStyle, templateId, duration) => {
         const id = crypto.randomUUID();
         const job: BatchJob = {
-          id,
-          topic,
-          scriptStyle,
-          templateId,
-          duration,
-          status: 'queued',
-          progress: 0,
-          generatedScript: null,
-          videoProject: null,
-          error: null,
-          createdAt: Date.now(),
-          completedAt: null,
+          id, jobType: 'video', topic, scriptStyle, templateId, duration,
+          adTemplateId: null, adFormat: null, adCopy: null,
+          status: 'queued', progress: 0, generatedScript: null, generatedAdCopy: null,
+          videoProject: null, adProject: null, error: null,
+          createdAt: Date.now(), completedAt: null,
         };
         set({ jobs: [...get().jobs, job] });
         return id;
       },
 
-      addBulkJobs: (topics, scriptStyle, templateId, duration) => {
+      addAdJob: (topic, templateId, format) => {
+        const id = crypto.randomUUID();
+        const job: BatchJob = {
+          id, jobType: 'static-ad', topic, scriptStyle: 'viral', templateId: '', duration: 0,
+          adTemplateId: templateId, adFormat: format, adCopy: null,
+          status: 'queued', progress: 0, generatedScript: null, generatedAdCopy: null,
+          videoProject: null, adProject: null, error: null,
+          createdAt: Date.now(), completedAt: null,
+        };
+        set({ jobs: [...get().jobs, job] });
+        return id;
+      },
+
+      addBulkVideoJobs: (topics, scriptStyle, templateId, duration) => {
         const ids: string[] = [];
         const newJobs: BatchJob[] = topics.map((topic) => {
           const id = crypto.randomUUID();
           ids.push(id);
           return {
-            id,
-            topic: topic.trim(),
-            scriptStyle,
-            templateId,
-            duration,
-            status: 'queued' as const,
-            progress: 0,
-            generatedScript: null,
-            videoProject: null,
-            error: null,
-            createdAt: Date.now(),
-            completedAt: null,
+            id, jobType: 'video' as const, topic: topic.trim(), scriptStyle, templateId, duration,
+            adTemplateId: null, adFormat: null, adCopy: null,
+            status: 'queued' as const, progress: 0, generatedScript: null, generatedAdCopy: null,
+            videoProject: null, adProject: null, error: null,
+            createdAt: Date.now(), completedAt: null,
           };
         });
         set({ jobs: [...get().jobs, ...newJobs] });
         return ids;
       },
 
-      removeJob: (id) => {
-        set({ jobs: get().jobs.filter((j) => j.id !== id) });
+      addBulkAdJobs: (topics, templateId, format) => {
+        const ids: string[] = [];
+        const newJobs: BatchJob[] = topics.map((topic) => {
+          const id = crypto.randomUUID();
+          ids.push(id);
+          return {
+            id, jobType: 'static-ad' as const, topic: topic.trim(), scriptStyle: 'viral' as const,
+            templateId: '', duration: 0,
+            adTemplateId: templateId, adFormat: format, adCopy: null,
+            status: 'queued' as const, progress: 0, generatedScript: null, generatedAdCopy: null,
+            videoProject: null, adProject: null, error: null,
+            createdAt: Date.now(), completedAt: null,
+          };
+        });
+        set({ jobs: [...get().jobs, ...newJobs] });
+        return ids;
       },
 
-      clearCompleted: () => {
-        set({ jobs: get().jobs.filter((j) => j.status !== 'complete') });
-      },
-
-      clearAll: () => {
-        set({ jobs: [], isProcessing: false });
-      },
-
-      updateConfig: (updates) => {
-        set({ config: { ...get().config, ...updates } });
-      },
+      removeJob: (id) => set({ jobs: get().jobs.filter((j) => j.id !== id) }),
+      clearCompleted: () => set({ jobs: get().jobs.filter((j) => j.status !== 'complete') }),
+      clearAll: () => set({ jobs: [], isProcessing: false }),
+      updateConfig: (updates) => set({ config: { ...get().config, ...updates } }),
 
       processQueue: async () => {
         const { jobs, isProcessing } = get();
@@ -105,89 +116,15 @@ export const useBatchStore = create<BatchState>()(
 
         for (const job of queued) {
           try {
-            const template = VIRAL_TEMPLATES.find((t) => t.id === job.templateId) || VIRAL_TEMPLATES[0];
-
-            // Step 1: Generating script
-            set({
-              jobs: get().jobs.map((j) =>
-                j.id === job.id ? { ...j, status: 'generating-script' as const, progress: 10 } : j
-              ),
-            });
-
-            const result = await autoBuildVideo(
-              job.topic,
-              job.scriptStyle,
-              template,
-              job.duration,
-            );
-
-            // Step 2: Captions
-            set({
-              jobs: get().jobs.map((j) =>
-                j.id === job.id
-                  ? { ...j, status: 'generating-captions' as const, progress: 40, generatedScript: result.script }
-                  : j
-              ),
-            });
-
-            // Small delay to show progress
-            await new Promise((r) => setTimeout(r, 300));
-
-            // Step 3: Effects
-            set({
-              jobs: get().jobs.map((j) =>
-                j.id === job.id ? { ...j, status: 'generating-effects' as const, progress: 65 } : j
-              ),
-            });
-
-            await new Promise((r) => setTimeout(r, 300));
-
-            // Step 4: Graphics
-            set({
-              jobs: get().jobs.map((j) =>
-                j.id === job.id ? { ...j, status: 'generating-graphics' as const, progress: 85 } : j
-              ),
-            });
-
-            await new Promise((r) => setTimeout(r, 200));
-
-            // Complete — assemble video project
-            const videoProject: VideoProject = {
-              id: crypto.randomUUID(),
-              name: job.topic,
-              aspectRatio: template.aspectRatio,
-              duration: job.duration,
-              videoSrc: null,
-              captions: result.captions,
-              effects: result.effects,
-              motionGraphics: result.motionGraphics,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            };
-
-            set({
-              jobs: get().jobs.map((j) =>
-                j.id === job.id
-                  ? {
-                      ...j,
-                      status: 'complete' as const,
-                      progress: 100,
-                      videoProject,
-                      completedAt: Date.now(),
-                    }
-                  : j
-              ),
-            });
+            if (job.jobType === 'video') {
+              await processVideoJob(job, get, set);
+            } else {
+              await processAdJob(job, get, set);
+            }
           } catch (err) {
             set({
               jobs: get().jobs.map((j) =>
-                j.id === job.id
-                  ? {
-                      ...j,
-                      status: 'error' as const,
-                      error: err instanceof Error ? err.message : 'Unknown error',
-                    }
-                  : j
+                j.id === job.id ? { ...j, status: 'error' as const, error: err instanceof Error ? err.message : 'Unknown error' } : j
               ),
             });
           }
@@ -198,17 +135,68 @@ export const useBatchStore = create<BatchState>()(
 
       getStats: () => {
         const { jobs } = get();
+        const active = ['generating-script', 'generating-copy', 'generating-captions', 'generating-effects', 'generating-graphics', 'composing-ad'];
         return {
           total: jobs.length,
           queued: jobs.filter((j) => j.status === 'queued').length,
-          processing: jobs.filter((j) =>
-            ['generating-script', 'generating-captions', 'generating-effects', 'generating-graphics'].includes(j.status)
-          ).length,
+          processing: jobs.filter((j) => active.includes(j.status)).length,
           complete: jobs.filter((j) => j.status === 'complete').length,
           error: jobs.filter((j) => j.status === 'error').length,
+          videos: jobs.filter((j) => j.jobType === 'video').length,
+          ads: jobs.filter((j) => j.jobType === 'static-ad').length,
         };
       },
     }),
     { name: 'hpa-batch' }
   )
 );
+
+// ─── Processing helpers ───────────────────────────────────────────────
+
+async function processVideoJob(job: BatchJob, get: () => any, set: (s: any) => void) {
+  const template = VIRAL_TEMPLATES.find((t) => t.id === job.templateId) || VIRAL_TEMPLATES[0];
+
+  updateJob(job.id, { status: 'generating-script', progress: 10 }, get, set);
+  const result = await autoBuildVideo(job.topic, job.scriptStyle, template, job.duration);
+
+  updateJob(job.id, { status: 'generating-captions', progress: 40, generatedScript: result.script }, get, set);
+  await delay(300);
+
+  updateJob(job.id, { status: 'generating-effects', progress: 65 }, get, set);
+  await delay(300);
+
+  updateJob(job.id, { status: 'generating-graphics', progress: 85 }, get, set);
+  await delay(200);
+
+  const videoProject: VideoProject = {
+    id: crypto.randomUUID(), name: job.topic, type: 'video', status: 'draft', tags: [],
+    aspectRatio: template.aspectRatio, duration: job.duration, videoSrc: null, audioSrc: null,
+    captions: result.captions, effects: result.effects, motionGraphics: result.motionGraphics,
+    scenes: [], voiceOver: null, createdAt: Date.now(), updatedAt: Date.now(),
+  };
+
+  updateJob(job.id, { status: 'complete', progress: 100, videoProject, completedAt: Date.now() }, get, set);
+}
+
+async function processAdJob(job: BatchJob, get: () => any, set: (s: any) => void) {
+  updateJob(job.id, { status: 'generating-copy', progress: 20 }, get, set);
+
+  const result = await autoBuildStaticAd(
+    job.topic,
+    'professional',
+    job.adTemplateId || 'product-showcase',
+  );
+
+  updateJob(job.id, { status: 'composing-ad', progress: 70, generatedAdCopy: result.copy }, get, set);
+  await delay(400);
+
+  updateJob(job.id, { status: 'complete', progress: 100, adProject: result.adProject, completedAt: Date.now() }, get, set);
+}
+
+function updateJob(id: string, updates: Partial<BatchJob>, get: () => any, set: (s: any) => void) {
+  set({ jobs: get().jobs.map((j: BatchJob) => j.id === id ? { ...j, ...updates } : j) });
+}
+
+function delay(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}

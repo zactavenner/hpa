@@ -33,7 +33,7 @@ interface ReviewDashboardProps {
 export default function ReviewDashboard({ onNavigate }: ReviewDashboardProps) {
   const { items, filter, addItem, updateItem, removeItem, setFilter, getFilteredItems, getStats } =
     useReviewStore();
-  const { addJob } = useBatchStore();
+  const { addVideoJob } = useBatchStore();
   const { getActiveKey, markKeyUsed } = useApiKeysStore();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
@@ -55,14 +55,15 @@ export default function ReviewDashboard({ onNavigate }: ReviewDashboardProps) {
       priority: form.priority,
       assignee: null,
       tags: form.tags ? form.tags.split(',').map((t) => t.trim()) : [],
-      videoProjectId: null,
+      projectId: null,
+      projectType: null,
     });
     setForm({ title: '', description: '', priority: 'medium', tags: '' });
     setShowAdd(false);
   };
 
   const handleSendToBatch = (item: ReviewItem) => {
-    addJob(item.title, 'viral', 'tiktok-storytelling', 30);
+    addVideoJob(item.title, 'viral', 'tiktok-storytelling', 30);
     updateItem(item.id, { status: 'in-progress' });
     if (onNavigate) onNavigate('batch');
   };

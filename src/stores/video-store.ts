@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { VideoProject, Caption, VideoEffect, MotionGraphic, CaptionStyle } from '@/types';
+import { VideoProject, Caption, VideoEffect, MotionGraphic } from '@/types';
 
 interface VideoState {
   project: VideoProject | null;
@@ -48,12 +48,18 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       project: {
         id: crypto.randomUUID(),
         name,
+        type: 'video',
+        status: 'draft',
+        tags: [],
         aspectRatio,
         duration: 0,
         videoSrc: null,
+        audioSrc: null,
         captions: [],
         effects: [],
         motionGraphics: [],
+        scenes: [],
+        voiceOver: null,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       },
@@ -80,15 +86,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
 
   updateCaption: (id, updates) => {
     const p = get().project;
-    if (p) {
-      set({
-        project: {
-          ...p,
-          captions: p.captions.map((c) => (c.id === id ? { ...c, ...updates } : c)),
-          updatedAt: Date.now(),
-        },
-      });
-    }
+    if (p) set({ project: { ...p, captions: p.captions.map((c) => (c.id === id ? { ...c, ...updates } : c)), updatedAt: Date.now() } });
   },
 
   removeCaption: (id) => {
@@ -110,15 +108,7 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
 
   updateEffect: (id, updates) => {
     const p = get().project;
-    if (p) {
-      set({
-        project: {
-          ...p,
-          effects: p.effects.map((e) => (e.id === id ? { ...e, ...updates } : e)),
-          updatedAt: Date.now(),
-        },
-      });
-    }
+    if (p) set({ project: { ...p, effects: p.effects.map((e) => (e.id === id ? { ...e, ...updates } : e)), updatedAt: Date.now() } });
   },
 
   removeEffect: (id) => {
