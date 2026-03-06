@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useApiKeysStore } from '@/stores/api-keys-store';
+import { useBatchStore } from '@/stores/batch-store';
 import {
   LayoutDashboard,
   Film,
   Key,
+  Layers,
   ChevronLeft,
   ChevronRight,
   Zap,
@@ -19,13 +21,16 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'editor', label: 'Video Editor', icon: Film },
+  { id: 'batch', label: 'Batch Generate', icon: Layers },
   { id: 'keys', label: 'API Keys', icon: Key },
 ];
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { getKeyStats } = useApiKeysStore();
-  const stats = getKeyStats();
+  const { getStats: getBatchStats, isProcessing } = useBatchStore();
+  const keyStats = getKeyStats();
+  const batchStats = getBatchStats();
 
   return (
     <aside
@@ -51,7 +56,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             key={item.id}
             onClick={() => onTabChange(item.id)}
             className={`
-              w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 text-left
+              w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 text-left relative
               ${
                 activeTab === item.id
                   ? 'bg-brand-50 text-brand-700 font-medium'
@@ -61,6 +66,15 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span className="text-sm">{item.label}</span>}
+            {/* Batch processing indicator */}
+            {item.id === 'batch' && isProcessing && (
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-green-500 animate-pulse-soft" />
+            )}
+            {item.id === 'batch' && batchStats.queued > 0 && !collapsed && (
+              <span className="ml-auto text-xs px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-medium">
+                {batchStats.queued}
+              </span>
+            )}
           </button>
         ))}
       </nav>
@@ -75,9 +89,9 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 <div
                   key={i}
                   className={`w-2 h-2 rounded-full ${
-                    i < stats.active
+                    i < keyStats.active
                       ? 'bg-green-500'
-                      : i < stats.total
+                      : i < keyStats.total
                         ? 'bg-yellow-500'
                         : 'bg-surface-200'
                   }`}
@@ -85,9 +99,16 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               ))}
             </div>
             <span className="text-xs text-surface-500">
-              {stats.active}/{stats.total} active
+              {keyStats.active}/{keyStats.total} active
             </span>
           </div>
+          {batchStats.total > 0 && (
+            <div className="mt-2 pt-2 border-t border-surface-100">
+              <p className="text-xs text-surface-500">
+                Batch: {batchStats.complete}/{batchStats.total} done
+              </p>
+            </div>
+          )}
         </div>
       )}
 

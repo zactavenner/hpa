@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useReviewStore } from '@/stores/review-store';
+import { useBatchStore } from '@/stores/batch-store';
+import { generateReviewSummary } from '@/lib/ai-service';
+import { useApiKeysStore } from '@/stores/api-keys-store';
 import { ReviewItem } from '@/types';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
@@ -16,14 +19,22 @@ import {
   XCircle,
   AlertCircle,
   Sparkles,
+  Film,
+  Layers,
 } from 'lucide-react';
 
 const STATUS_OPTIONS: (ReviewItem['status'] | 'all')[] = ['all', 'pending', 'in-progress', 'approved', 'rejected'];
 const PRIORITY_OPTIONS: (ReviewItem['priority'] | 'all')[] = ['all', 'low', 'medium', 'high', 'critical'];
 
-export default function ReviewDashboard() {
+interface ReviewDashboardProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export default function ReviewDashboard({ onNavigate }: ReviewDashboardProps) {
   const { items, filter, addItem, updateItem, removeItem, setFilter, getFilteredItems, getStats } =
     useReviewStore();
+  const { addJob } = useBatchStore();
+  const { getActiveKey, markKeyUsed } = useApiKeysStore();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -48,6 +59,24 @@ export default function ReviewDashboard() {
     });
     setForm({ title: '', description: '', priority: 'medium', tags: '' });
     setShowAdd(false);
+  };
+
+  const handleSendToBatch = (item: ReviewItem) => {
+    addJob(item.title, 'viral', 'tiktok-storytelling', 30);
+    updateItem(item.id, { status: 'in-progress' });
+    if (onNavigate) onNavigate('batch');
+  };
+
+  const handleSendToEditor = (item: ReviewItem) => {
+    updateItem(item.id, { status: 'in-progress' });
+    if (onNavigate) onNavigate('editor');
+  };
+
+  const handleAiSummary = async (item: ReviewItem) => {
+    const key = getActiveKey();
+    const summary = await generateReviewSummary(item.description || item.title);
+    if (key) markKeyUsed(key.id);
+    updateItem(item.id, { aiSummary: summary });
   };
 
   const STAT_CARDS = [
@@ -158,6 +187,29 @@ export default function ReviewDashboard() {
               </div>
 
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {!item.aiSummary && (
+                  <button
+                    onClick={() => handleAiSummary(item)}
+                    className="p-1.5 rounded-lg hover:bg-purple-50 text-surface-400 hover:text-purple-600 transition-colors"
+                    title="AI Summary"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => handleSendToEditor(item)}
+                  className="p-1.5 rounded-lg hover:bg-brand-50 text-surface-400 hover:text-brand-600 transition-colors"
+                  title="Open in Editor"
+                >
+                  <Film className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleSendToBatch(item)}
+                  className="p-1.5 rounded-lg hover:bg-orange-50 text-surface-400 hover:text-orange-600 transition-colors"
+                  title="Send to Batch"
+                >
+                  <Layers className="w-4 h-4" />
+                </button>
                 <select
                   value={item.status}
                   onChange={(e) => updateItem(item.id, { status: e.target.value as ReviewItem['status'] })}

@@ -88,15 +88,27 @@ export interface ReviewItem {
   updatedAt: number;
 }
 
-export interface AiGenerationRequest {
-  type: 'captions' | 'effects' | 'motion-graphics' | 'review-summary' | 'viral-edit';
-  prompt: string;
-  context?: Record<string, unknown>;
+export type ScriptStyle = 'viral' | 'educational' | 'storytelling' | 'promotional';
+
+export interface BatchJob {
+  id: string;
+  topic: string;
+  scriptStyle: ScriptStyle;
+  templateId: string;
+  duration: number;
+  status: 'queued' | 'generating-script' | 'generating-captions' | 'generating-effects' | 'generating-graphics' | 'complete' | 'error';
+  progress: number;
+  generatedScript: string | null;
+  videoProject: VideoProject | null;
+  error: string | null;
+  createdAt: number;
+  completedAt: number | null;
 }
 
-export interface AiGenerationResponse {
-  success: boolean;
-  data: unknown;
-  keyUsed: string;
-  tokensUsed: number;
+export interface BatchConfig {
+  maxConcurrent: number;
+  autoApplyTemplate: boolean;
+  defaultDuration: number;
+  defaultScriptStyle: ScriptStyle;
+  defaultTemplateId: string;
 }
