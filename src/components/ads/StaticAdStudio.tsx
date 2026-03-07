@@ -237,6 +237,98 @@ export default function StaticAdStudio() {
           </div>
         </div>
 
+        {/* Style Selector (pre-project) */}
+        <div className="card space-y-3">
+          <h3 className="font-medium text-surface-900 text-sm">Choose a Style</h3>
+          <p className="text-[11px] text-surface-500">Select a style before creating — it will be applied to the template</p>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {AD_STYLE_PRESETS.map((style) => (
+              <button
+                key={style.id}
+                onClick={() => setSelectedStyle(selectedStyle?.id === style.id ? null : style)}
+                className={`flex-shrink-0 rounded-xl border-2 p-2 transition-all ${
+                  selectedStyle?.id === style.id
+                    ? 'border-brand-500 ring-2 ring-brand-200 shadow-md'
+                    : 'border-surface-200 hover:border-surface-300'
+                }`}
+                style={{ width: 100 }}
+              >
+                <div className="flex gap-0.5 mb-1.5 rounded-lg overflow-hidden h-8">
+                  <div className="flex-1" style={{ background: style.colors.bg }} />
+                  <div className="flex-1" style={{ background: style.colors.primary }} />
+                  <div className="flex-1" style={{ background: style.colors.accent }} />
+                  <div className="flex-1" style={{ background: style.colors.secondary }} />
+                </div>
+                <p className="text-[10px] font-semibold text-surface-900 truncate">{style.name}</p>
+                <p className="text-[9px] text-surface-500 truncate">{style.description}</p>
+              </button>
+            ))}
+          </div>
+          {selectedStyle && (
+            <div className="flex items-center gap-2 text-xs text-brand-700 bg-brand-50 px-3 py-1.5 rounded-lg">
+              <span className="font-medium">Active: {selectedStyle.name}</span>
+              <span className="text-brand-400">|</span>
+              <span>{selectedStyle.vibe} vibe</span>
+              <button onClick={() => setSelectedStyle(null)} className="ml-auto text-brand-500 hover:text-brand-700">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Reference Images (pre-project) */}
+        <div className="card space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-surface-900 text-sm">Reference Images</h3>
+              <p className="text-[11px] text-surface-500">Upload client branding or offer images to recreate</p>
+            </div>
+            <label className="btn-secondary flex items-center gap-1.5 text-sm py-2 cursor-pointer">
+              <Upload className="w-4 h-4" /> Upload
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleAddReferenceImage}
+                className="hidden"
+              />
+            </label>
+          </div>
+          {referenceImages.length > 0 && (
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {referenceImages.map((src, i) => (
+                <div key={i} className="relative flex-shrink-0 group">
+                  <img
+                    src={src}
+                    alt={`Reference ${i + 1}`}
+                    className="h-24 w-24 object-cover rounded-xl border-2 border-surface-200 group-hover:border-brand-300 transition-colors"
+                  />
+                  <button
+                    onClick={() => handleRemoveReferenceImage(i)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                  <span className="absolute bottom-1 left-1 text-[9px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+                    Ref {i + 1}
+                  </span>
+                </div>
+              ))}
+              <label className="flex-shrink-0 h-24 w-24 rounded-xl border-2 border-dashed border-surface-300 hover:border-brand-400 flex flex-col items-center justify-center cursor-pointer transition-colors">
+                <Plus className="w-5 h-5 text-surface-400" />
+                <span className="text-[9px] text-surface-400 mt-1">Add more</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleAddReferenceImage}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          )}
+        </div>
+
         {/* Templates Modal */}
         <Modal open={showTemplates} onClose={() => setShowTemplates(false)} title="Choose Template" size="lg">
           <div className="grid grid-cols-2 gap-4">
