@@ -4,7 +4,7 @@ import {
   AdTemplate, ScriptStyle,
 } from '@/types';
 import { AD_FORMAT_SIZES } from '@/types';
-import { AD_TEMPLATES, DEFAULT_FONT_PRESET, FONT_PRESETS } from '@/lib/ad-templates';
+import { AD_TEMPLATES, DEFAULT_FONT_PRESET, FONT_PRESETS, AdStylePreset } from '@/lib/ad-templates';
 
 // ─── Script Generation ────────────────────────────────────────────────
 
@@ -282,11 +282,14 @@ export async function composeStaticAd(
   templateId: string,
   copy: { headline: string; body: string; cta: string },
   brandKit?: Partial<BrandKit>,
+  stylePreset?: AdStylePreset,
+  referenceImages?: string[],
 ): Promise<StaticAdProject> {
   const template = AD_TEMPLATES.find((t) => t.id === templateId) || AD_TEMPLATES[0];
   const fontPreset = FONT_PRESETS[template.fontPreset] || FONT_PRESETS[DEFAULT_FONT_PRESET];
   const size = AD_FORMAT_SIZES[template.format];
 
+  // Merge brand kit with style preset overrides
   const mergedBrandKit: BrandKit = {
     ...template.brandKit,
     ...brandKit,
@@ -294,9 +297,28 @@ export async function composeStaticAd(
     fontBody: fontPreset.body,
   };
 
+  if (stylePreset) {
+    mergedBrandKit.primaryColor = stylePreset.colors.primary;
+    mergedBrandKit.secondaryColor = stylePreset.colors.secondary;
+    mergedBrandKit.accentColor = stylePreset.colors.accent;
+  }
+
   // Map template layers, replacing placeholder text with generated copy
   const layers: AdLayer[] = template.layers.map((layer, i) => {
     const base = { ...layer, id: crypto.randomUUID() };
+
+    // Apply style preset to background
+    if (layer.content.type === 'background' && stylePreset) {
+      const bgContent = { ...layer.content };
+      bgContent.fill = stylePreset.colors.bg;
+      // Clear gradient if style changes the bg to keep it clean
+      if (stylePreset.vibe === 'clean' || stylePreset.vibe === 'organic') {
+        bgContent.gradient = null;
+      } else if (stylePreset.vibe === 'gradient') {
+        bgContent.gradient = `linear-gradient(135deg, ${stylePreset.colors.bg} 0%, ${stylePreset.colors.secondary} 100%)`;
+      }
+      return { ...base, content: bgContent };
+    }
 
     if (layer.content.type === 'text') {
       const content = { ...layer.content };
@@ -307,18 +329,58 @@ export async function composeStaticAd(
         content.text = copy.body;
       }
       content.fontFamily = content.fontSize >= 40 ? fontPreset.heading : fontPreset.body;
+
+      // Apply style preset colors and typography
+      if (stylePreset) {
+        content.color = content.fontSize >= 40 ? stylePreset.colors.primary : stylePreset.colors.text;
+        content.letterSpacing = stylePreset.typography.letterSpacing;
+        content.textTransform = stylePreset.typography.transform;
+        content.fontWeight = stylePreset.typography.weight === 'black' ? 900
+          : stylePreset.typography.weight === 'bold' ? 700
+          : stylePreset.typography.weight === 'regular' ? 400 : 300;
+      }
+
       return { ...base, content };
     }
 
     if (layer.content.type === 'cta-button') {
-      return {
-        ...base,
-        content: { ...layer.content, text: copy.cta, fontFamily: fontPreset.heading },
-      };
+      const ctaContent = { ...layer.content, text: copy.cta, fontFamily: fontPreset.heading };
+      if (stylePreset) {
+        ctaContent.bgColor = stylePreset.colors.accent;
+        ctaContent.color = stylePreset.colors.bg;
+      }
+      return { ...base, content: ctaContent };
+    }
+
+    // Apply accent color to shapes
+    if (layer.content.type === 'shape' && stylePreset) {
+      const shapeContent = { ...layer.content };
+      shapeContent.fill = stylePreset.colors.accent;
+      return { ...base, content: shapeContent };
     }
 
     return base;
   });
+
+  // Add reference images as image layers if provided
+  if (referenceImages && referenceImages.length > 0) {
+    referenceImages.forEach((src, i) => {
+      layers.push({
+        id: crypto.randomUUID(),
+        type: 'image',
+        order: layers.length,
+        visible: true,
+        locked: false,
+        x: 60 + i * 40,
+        y: Math.round(size.height * 0.25),
+        width: Math.round(size.width * 0.45),
+        height: Math.round(size.height * 0.4),
+        rotation: 0,
+        opacity: 1,
+        content: { type: 'image', src, fit: 'contain', borderRadius: 16, filter: null },
+      });
+    });
+  }
 
   return {
     id: crypto.randomUUID(),

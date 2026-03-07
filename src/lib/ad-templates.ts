@@ -476,6 +476,88 @@ export const AD_TEMPLATES: AdTemplate[] = [
   },
 ];
 
+// ─── Ad Style Presets ─────────────────────────────────────────────────
+
+export interface AdStylePreset {
+  id: string;
+  name: string;
+  description: string;
+  colors: { bg: string; primary: string; secondary: string; accent: string; text: string };
+  typography: { weight: 'light' | 'regular' | 'bold' | 'black'; transform: 'none' | 'uppercase'; letterSpacing: number };
+  vibe: 'clean' | 'bold' | 'elegant' | 'neon' | 'organic' | 'retro' | 'gradient' | 'dark';
+}
+
+export const AD_STYLE_PRESETS: AdStylePreset[] = [
+  {
+    id: 'clean-minimal',
+    name: 'Clean Minimal',
+    description: 'White space, sharp type, refined',
+    colors: { bg: '#ffffff', primary: '#0f172a', secondary: '#64748b', accent: '#2563eb', text: '#0f172a' },
+    typography: { weight: 'bold', transform: 'none', letterSpacing: -0.5 },
+    vibe: 'clean',
+  },
+  {
+    id: 'bold-impact',
+    name: 'Bold Impact',
+    description: 'High contrast, punchy, attention-grabbing',
+    colors: { bg: '#0f172a', primary: '#ffffff', secondary: '#facc15', accent: '#ef4444', text: '#ffffff' },
+    typography: { weight: 'black', transform: 'uppercase', letterSpacing: 2 },
+    vibe: 'bold',
+  },
+  {
+    id: 'luxury-dark',
+    name: 'Luxury Dark',
+    description: 'Sophisticated dark, gold accents',
+    colors: { bg: '#0a0a0a', primary: '#d4af37', secondary: '#f5f5f4', accent: '#d4af37', text: '#f5f5f4' },
+    typography: { weight: 'light', transform: 'uppercase', letterSpacing: 4 },
+    vibe: 'elegant',
+  },
+  {
+    id: 'neon-pop',
+    name: 'Neon Pop',
+    description: 'Electric colors, high energy',
+    colors: { bg: '#1a1a2e', primary: '#e94560', secondary: '#0f3460', accent: '#16c79a', text: '#eaeaea' },
+    typography: { weight: 'bold', transform: 'uppercase', letterSpacing: 1 },
+    vibe: 'neon',
+  },
+  {
+    id: 'organic-warm',
+    name: 'Organic Warm',
+    description: 'Earthy tones, natural feel',
+    colors: { bg: '#fef3c7', primary: '#78350f', secondary: '#92400e', accent: '#059669', text: '#451a03' },
+    typography: { weight: 'regular', transform: 'none', letterSpacing: 0 },
+    vibe: 'organic',
+  },
+  {
+    id: 'retro-groove',
+    name: 'Retro Groove',
+    description: '70s vibe, warm gradients, rounded',
+    colors: { bg: '#fdf6e3', primary: '#c2410c', secondary: '#9333ea', accent: '#ea580c', text: '#1c1917' },
+    typography: { weight: 'black', transform: 'none', letterSpacing: -1 },
+    vibe: 'retro',
+  },
+  {
+    id: 'gradient-modern',
+    name: 'Gradient Modern',
+    description: 'Vivid gradients, modern SaaS feel',
+    colors: { bg: '#0f172a', primary: '#818cf8', secondary: '#c084fc', accent: '#38bdf8', text: '#f1f5f9' },
+    typography: { weight: 'bold', transform: 'none', letterSpacing: -0.5 },
+    vibe: 'gradient',
+  },
+  {
+    id: 'dark-editorial',
+    name: 'Dark Editorial',
+    description: 'Magazine-style, dramatic contrast',
+    colors: { bg: '#18181b', primary: '#fafafa', secondary: '#a1a1aa', accent: '#f43f5e', text: '#fafafa' },
+    typography: { weight: 'light', transform: 'none', letterSpacing: 0.5 },
+    vibe: 'dark',
+  },
+];
+
+export function getAdStyle(id: string): AdStylePreset | undefined {
+  return AD_STYLE_PRESETS.find((s) => s.id === id);
+}
+
 export function getAdTemplate(id: string): AdTemplate | undefined {
   return AD_TEMPLATES.find((t) => t.id === id);
 }
