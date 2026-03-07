@@ -38,7 +38,7 @@ export default function DashboardHome({ onNavigate }: DashboardHomeProps) {
             <Film className="w-4 h-4" /> Video Editor
           </button>
           <button onClick={() => onNavigate('ads')} className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur text-white border border-white/20 rounded-xl text-sm font-semibold hover:bg-white/20 transition-colors">
-            <PenTool className="w-4 h-4" /> Static Ads
+            <PenTool className="w-4 h-4" /> Client Ads
           </button>
           <button onClick={() => onNavigate('batch')} className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur text-white border border-white/20 rounded-xl text-sm font-semibold hover:bg-white/20 transition-colors">
             <Layers className="w-4 h-4" /> Batch Generate
@@ -63,7 +63,7 @@ export default function DashboardHome({ onNavigate }: DashboardHomeProps) {
           </div>
           <div>
             <p className="text-2xl font-bold text-surface-900">{batchStats.ads + adProjects.length}</p>
-            <p className="text-xs text-surface-500">Static Ads</p>
+            <p className="text-xs text-surface-500">Client Ads</p>
           </div>
         </div>
         <div className="card flex items-center gap-3">
@@ -108,8 +108,8 @@ export default function DashboardHome({ onNavigate }: DashboardHomeProps) {
               </div>
               <ArrowRight className="w-4 h-4 text-surface-300 group-hover:text-emerald-500 transition-colors" />
             </div>
-            <h3 className="font-semibold text-surface-900 mb-1">Design Static Ad</h3>
-            <p className="text-xs text-surface-500">6 templates, AI copy generation, layer editor. All using Nano Banana Pro.</p>
+            <h3 className="font-semibold text-surface-900 mb-1">Client Ad Studio</h3>
+            <p className="text-xs text-surface-500">Style presets, reference images, AI copy. Recreate client branding with Nano Banana Pro.</p>
           </button>
 
           <button onClick={() => onNavigate('editor')} className="card hover:border-purple-300 hover:shadow-md text-left group transition-all">

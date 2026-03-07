@@ -6,7 +6,6 @@ import { useBatchStore } from '@/stores/batch-store';
 import {
   LayoutDashboard,
   Film,
-  PenTool,
   Key,
   Layers,
   ChevronLeft,
@@ -23,7 +22,6 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'editor', label: 'Video Editor', icon: Film },
-  { id: 'ads', label: 'Static Ads', icon: PenTool },
   { id: 'batch', label: 'Batch Generate', icon: Layers },
   { id: 'review', label: 'Reviews', icon: ClipboardList },
   { id: 'keys', label: 'API Keys', icon: Key },

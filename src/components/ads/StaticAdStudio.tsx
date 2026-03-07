@@ -163,9 +163,9 @@ export default function StaticAdStudio() {
             <PenTool className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-surface-900">Static Ad Studio</h2>
+            <h2 className="text-xl font-bold text-surface-900">Client Ad Studio</h2>
             <p className="text-sm text-surface-500">
-              Design and scale static ads with AI • Nano Banana Pro font
+              Recreate client branding with styles, references & AI • Nano Banana Pro
             </p>
           </div>
         </div>
