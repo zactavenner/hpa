@@ -4,6 +4,9 @@ import VideoCanvas from './VideoCanvas';
 import Timeline from './Timeline';
 import EditorToolbar from './EditorToolbar';
 import CaptionEditor from './CaptionEditor';
+import EffectEditor from './EffectEditor';
+import GraphicEditor from './GraphicEditor';
+import ExportPanel from './ExportPanel';
 import { useVideoStore } from '@/stores/video-store';
 import { Film } from 'lucide-react';
 
@@ -48,6 +51,9 @@ export default function VideoEditor() {
           {/* Properties Panel */}
           <div className="space-y-4">
             <CaptionEditor />
+            <EffectEditor />
+            <GraphicEditor />
+            <ExportPanel />
 
             {/* Project Info */}
             <div className="card space-y-3">

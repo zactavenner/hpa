@@ -30,8 +30,8 @@ export default function DashboardHome({ onNavigate }: DashboardHomeProps) {
           <h1 className="text-2xl font-bold">HPA Studio</h1>
         </div>
         <p className="text-white/70 max-w-xl mb-6">
-          Scale your video and ad production with AI. Generate scripts, apply viral templates, compose
-          static ads — all with Nano Banana Pro typography and one-click batch generation.
+          Direct response video & ad production at scale. AI-powered scripts with urgency hooks,
+          price callouts, testimonial overlays, and conversion-optimized CTAs — powered by Nano Banana Pro.
         </p>
         <div className="flex flex-wrap gap-3">
           <button onClick={() => onNavigate('editor')} className="flex items-center gap-2 px-5 py-2.5 bg-white text-surface-900 rounded-xl text-sm font-semibold hover:bg-white/90 transition-colors">
@@ -98,7 +98,7 @@ export default function DashboardHome({ onNavigate }: DashboardHomeProps) {
               <ArrowRight className="w-4 h-4 text-surface-300 group-hover:text-brand-500 transition-colors" />
             </div>
             <h3 className="font-semibold text-surface-900 mb-1">Batch Generate</h3>
-            <p className="text-xs text-surface-500">Bulk create videos and static ads from topics. Auto script + template + Nano Banana Pro.</p>
+            <p className="text-xs text-surface-500">Bulk create DR video ads and static ads. Auto scripts with urgency hooks + conversion CTAs.</p>
           </button>
 
           <button onClick={() => onNavigate('ads')} className="card hover:border-emerald-300 hover:shadow-md text-left group transition-all">
@@ -120,7 +120,7 @@ export default function DashboardHome({ onNavigate }: DashboardHomeProps) {
               <ArrowRight className="w-4 h-4 text-surface-300 group-hover:text-purple-500 transition-colors" />
             </div>
             <h3 className="font-semibold text-surface-900 mb-1">Video Editor</h3>
-            <p className="text-xs text-surface-500">AI captions, viral effects, motion graphics, multi-track timeline.</p>
+            <p className="text-xs text-surface-500">DR overlays, price callouts, urgency timers, AI captions, undo/redo, and frame export.</p>
           </button>
         </div>
       </div>

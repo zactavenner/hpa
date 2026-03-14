@@ -71,4 +71,26 @@ export const VIRAL_TEMPLATES: ViralTemplate[] = [
       { type: 'lower-third', startTime: 5, endTime: 10, content: '', style: { fontSize: 18, color: '#e2e8f0' }, animation: 'slide-in' },
     ],
   },
+  {
+    id: 'direct-response-ad',
+    name: 'Direct Response Ad',
+    description: 'High-converting DR ad with price callouts, urgency timer, offer badge, and strong CTAs',
+    thumbnail: '/templates/dr-ad.svg',
+    aspectRatio: '9:16',
+    captionStyle: 'viral',
+    effects: [
+      { type: 'zoom', startTime: 0.3, endTime: 0.8, intensity: 1.3, params: {} },
+      { type: 'flash', startTime: 5, endTime: 5.15, intensity: 1, params: {} },
+      { type: 'shake', startTime: 8, endTime: 8.4, intensity: 0.9, params: {} },
+      { type: 'zoom', startTime: 12, endTime: 12.5, intensity: 1.2, params: {} },
+    ],
+    motionGraphics: [
+      { type: 'title-card', startTime: 0, endTime: 3, content: 'STOP SCROLLING.', style: { fontSize: 48, color: '#fff' }, animation: 'pop' },
+      { type: 'offer-badge', startTime: 2, endTime: 14, content: '50% OFF', style: { fontSize: 18, color: '#fff', bgColor: '#ef4444' }, animation: 'bounce' },
+      { type: 'testimonial-quote', startTime: 4, endTime: 7, content: '"This changed everything for my business" — Sarah K.', style: { fontSize: 14, color: '#fff' }, animation: 'fade' },
+      { type: 'price-callout', startTime: 7, endTime: 10, content: '$97→$47', style: { fontSize: 36, color: '#fff', oldPrice: '$97', newPrice: '$47' }, animation: 'pop' },
+      { type: 'urgency-timer', startTime: 10, endTime: 14, content: 'OFFER ENDS IN', style: { fontSize: 16, color: '#ef4444' }, animation: 'slide-in' },
+      { type: 'subscribe-cta', startTime: 12, endTime: 15, content: 'GET YOURS NOW ↓', style: { fontSize: 22, color: '#ef4444' }, animation: 'bounce' },
+    ],
+  },
 ];

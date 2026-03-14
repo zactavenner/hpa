@@ -38,6 +38,12 @@ export async function generateScript(
       'This is the future and it\'s here now.',
       'Imagine if you could do this in seconds.',
     ],
+    'direct-response': [
+      'Are you still struggling with this? There\'s a better way.',
+      'What if you could solve this in the next 60 seconds?',
+      'Stop wasting money on solutions that don\'t work.',
+      'The #1 mistake people make with this — and how to fix it.',
+    ],
   };
 
   const bodies: Record<string, string[]> = {
@@ -57,6 +63,10 @@ export async function generateScript(
       `We spent months perfecting ${topic}. Every detail was intentional. Every feature was tested with real users. And the result speaks for itself.`,
       `What makes ${topic} different is the approach. We didn't just build another solution. We reimagined the entire experience from scratch.`,
     ],
+    'direct-response': [
+      `Here's the problem. Most people waste hours on ${topic} with zero results. They try everything and nothing sticks. Sound familiar? Here's exactly what the top 1% do differently. They use a proven system that eliminates the guesswork. No trial and error. No wasted time.`,
+      `The truth about ${topic} is painful. 97% of people fail because they're doing it wrong. But there's a shortcut that changes everything. I used this exact method to go from zero to results in under a week. And now I'm handing it to you.`,
+    ],
   };
 
   const closers: Record<string, string[]> = {
@@ -64,6 +74,11 @@ export async function generateScript(
     educational: ['Save this for later. You\'ll want to come back to it.', 'Practice these steps and let me know how it goes.'],
     storytelling: ['And that\'s the story. But it\'s really just the beginning.', 'If you\'re on a similar journey, keep going. It\'s worth it.'],
     promotional: ['Check the link to see it in action.', 'Try it yourself and see the difference.'],
+    'direct-response': [
+      'Link in bio. Limited spots available — once they\'re gone, they\'re gone.',
+      'Use code SAVE50 at checkout. Offer expires tonight at midnight.',
+      'Click the link below before this deal disappears. You won\'t see this price again.',
+    ],
   };
 
   const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -80,7 +95,7 @@ export async function generateScript(
 
 export async function generateAdCopy(
   topic: string,
-  tone: 'professional' | 'casual' | 'urgent' | 'luxury' | 'playful',
+  tone: 'professional' | 'casual' | 'urgent' | 'luxury' | 'playful' | 'direct-response',
   format: AdFormat,
 ): Promise<{ headline: string; body: string; cta: string }> {
   const headlines: Record<string, string[]> = {
@@ -114,6 +129,12 @@ export async function generateAdCopy(
       `${topic} That Hits Different`,
       `${topic}? Yes Please`,
     ],
+    'direct-response': [
+      `Get ${topic} — 50% Off Today Only`,
+      `${topic}: Before & After Results`,
+      `Why 10,000+ Chose ${topic}`,
+      `${topic} — Risk Free, Guaranteed`,
+    ],
   };
 
   const bodies: Record<string, string[]> = {
@@ -137,6 +158,10 @@ export async function generateAdCopy(
       `${topic} doesn't have to be boring. We made it cool, easy, and a little bit magical.`,
       `Warning: our ${topic.toLowerCase()} might cause extreme productivity and happiness.`,
     ],
+    'direct-response': [
+      `Join 10,000+ who transformed their ${topic.toLowerCase()} in just 7 days. 100% money-back guarantee.`,
+      `Limited stock remaining. Our ${topic.toLowerCase()} sold out 3x last month. Don't miss your chance.`,
+    ],
   };
 
   const ctas: Record<string, string[]> = {
@@ -145,6 +170,7 @@ export async function generateAdCopy(
     urgent: ['Shop Now', 'Claim Your Spot', 'Get the Deal', 'Act Now'],
     luxury: ['Discover More', 'Explore Collection', 'Experience Now', 'View Exclusive'],
     playful: ['Let\'s Go!', 'Start Creating', 'Join the Fun', 'Dive In'],
+    'direct-response': ['Buy Now — 50% Off', 'Claim Your Discount', 'Get Yours Before Gone', 'Start Free Trial'],
   };
 
   const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -241,6 +267,59 @@ export async function generateMotionGraphics(
       style: { fontSize: 64 }, animation: 'pop',
     });
   }
+
+  return graphics;
+}
+
+// ─── DR Motion Graphics ──────────────────────────────────────────────
+
+export async function generateDRMotionGraphics(
+  duration: number,
+  title: string,
+): Promise<MotionGraphic[]> {
+  const graphics: MotionGraphic[] = [];
+
+  // Hook title card
+  graphics.push({
+    id: crypto.randomUUID(), type: 'title-card', startTime: 0, endTime: 3,
+    content: title || 'Stop Scrolling.', style: { fontSize: 48, color: '#ffffff' }, animation: 'pop',
+  });
+
+  // Offer badge — top-right
+  graphics.push({
+    id: crypto.randomUUID(), type: 'offer-badge', startTime: 2, endTime: duration - 2,
+    content: '50% OFF', style: { fontSize: 18, color: '#ffffff', bgColor: '#ef4444' }, animation: 'bounce',
+  });
+
+  // Price callout — appears mid-video
+  if (duration > 8) {
+    graphics.push({
+      id: crypto.randomUUID(), type: 'price-callout', startTime: Math.floor(duration * 0.4), endTime: Math.floor(duration * 0.6),
+      content: '$97→$47', style: { fontSize: 36, color: '#ffffff', oldPrice: '$97', newPrice: '$47' }, animation: 'pop',
+    });
+  }
+
+  // Urgency timer — last 8 seconds
+  if (duration > 12) {
+    graphics.push({
+      id: crypto.randomUUID(), type: 'urgency-timer', startTime: duration - 8, endTime: duration - 1,
+      content: 'OFFER ENDS IN', style: { fontSize: 16, color: '#ef4444' }, animation: 'slide-in',
+    });
+  }
+
+  // Testimonial quote
+  if (duration > 15) {
+    graphics.push({
+      id: crypto.randomUUID(), type: 'testimonial-quote', startTime: Math.floor(duration * 0.25), endTime: Math.floor(duration * 0.35),
+      content: '"This changed everything for my business" — Sarah K.', style: { fontSize: 16, color: '#ffffff' }, animation: 'fade',
+    });
+  }
+
+  // CTA
+  graphics.push({
+    id: crypto.randomUUID(), type: 'subscribe-cta', startTime: duration - 5, endTime: duration - 0.5,
+    content: 'GET YOURS NOW ↓', style: { fontSize: 22, color: '#ef4444' }, animation: 'bounce',
+  });
 
   return graphics;
 }

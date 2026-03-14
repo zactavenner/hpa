@@ -96,7 +96,7 @@ export interface VideoEffect {
 
 export interface MotionGraphic {
   id: string;
-  type: 'lower-third' | 'title-card' | 'emoji-burst' | 'particle' | 'progress-bar' | 'subscribe-cta' | 'sticker' | 'countdown';
+  type: 'lower-third' | 'title-card' | 'emoji-burst' | 'particle' | 'progress-bar' | 'subscribe-cta' | 'sticker' | 'countdown' | 'price-callout' | 'urgency-timer' | 'offer-badge' | 'testimonial-quote';
   startTime: number;
   endTime: number;
   content: string;
@@ -226,7 +226,7 @@ export interface ViralTemplate {
 
 // ─── Batch System ─────────────────────────────────────────────────────
 
-export type ScriptStyle = 'viral' | 'educational' | 'storytelling' | 'promotional';
+export type ScriptStyle = 'viral' | 'educational' | 'storytelling' | 'promotional' | 'direct-response';
 
 export type BatchJobType = 'video' | 'static-ad';
 

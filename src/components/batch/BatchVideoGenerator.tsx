@@ -17,6 +17,7 @@ const SCRIPT_STYLES: { value: ScriptStyle; label: string }[] = [
   { value: 'educational', label: 'Educational' },
   { value: 'storytelling', label: 'Storytelling' },
   { value: 'promotional', label: 'Promotional' },
+  { value: 'direct-response', label: 'Direct Response' },
 ];
 
 export default function BatchVideoGenerator() {

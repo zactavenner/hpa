@@ -354,6 +354,148 @@ function MotionGraphicOverlay({ graphic, currentTime }: { graphic: MotionGraphic
       );
     }
 
+    case 'price-callout': {
+      const parts = graphic.content.split('→');
+      const oldPrice = parts[0] || String(graphic.style.oldPrice) || '$99';
+      const newPrice = parts[1] || String(graphic.style.newPrice) || '$49';
+      return (
+        <div
+          style={{
+            ...baseStyle,
+            bottom: '15%',
+            right: '5%',
+            transform: `scale(${0.8 + enterProgress * 0.2})`,
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(0,0,0,0.7)',
+              backdropFilter: 'blur(8px)',
+              padding: '12px 20px',
+              borderRadius: 16,
+              border: '2px solid #22c55e',
+            }}
+          >
+            <span
+              style={{
+                fontSize: (Number(graphic.style.fontSize) || 28) * 0.7,
+                color: '#94a3b8',
+                textDecoration: 'line-through',
+                marginRight: 8,
+              }}
+            >
+              {oldPrice}
+            </span>
+            <span
+              style={{
+                fontSize: Number(graphic.style.fontSize) || 36,
+                fontWeight: 900,
+                color: '#22c55e',
+                textShadow: '0 2px 8px rgba(34,197,94,0.3)',
+              }}
+            >
+              {newPrice}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    case 'urgency-timer': {
+      const total = graphic.endTime - graphic.startTime;
+      const remaining = Math.max(0, total - (total * progress));
+      const mins = Math.floor(remaining / 60);
+      const secs = Math.floor(remaining % 60);
+      const flash = Math.sin(progress * Math.PI * 8) > 0;
+      return (
+        <div
+          style={{
+            ...baseStyle,
+            top: 0,
+            left: 0,
+            right: 0,
+            transform: `translateY(${(1 - enterProgress) * -40}px)`,
+          }}
+        >
+          <div
+            style={{
+              background: flash ? 'rgba(239,68,68,0.95)' : 'rgba(220,38,38,0.9)',
+              padding: '8px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'background 0.15s',
+            }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+              {graphic.content || 'OFFER ENDS IN'}
+            </span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', fontFamily: 'monospace' }}>
+              {mins}:{secs.toString().padStart(2, '0')}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    case 'offer-badge':
+      return (
+        <div
+          style={{
+            ...baseStyle,
+            top: '8%',
+            right: '5%',
+            transform: `rotate(12deg) scale(${0.6 + enterProgress * 0.4})`,
+          }}
+        >
+          <div
+            style={{
+              background: String(graphic.style.bgColor) || '#ef4444',
+              color: String(graphic.style.color) || '#fff',
+              padding: '10px 16px',
+              borderRadius: 12,
+              fontWeight: 900,
+              fontSize: Number(graphic.style.fontSize) || 18,
+              boxShadow: '0 4px 20px rgba(239,68,68,0.4)',
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.05em',
+              whiteSpace: 'nowrap' as const,
+            }}
+          >
+            {graphic.content || '50% OFF'}
+          </div>
+        </div>
+      );
+
+    case 'testimonial-quote':
+      return (
+        <div
+          style={{
+            ...baseStyle,
+            bottom: '20%',
+            left: '5%',
+            right: '5%',
+            transform: `translateY(${(1 - enterProgress) * 20}px)`,
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(8px)',
+              padding: '12px 16px',
+              borderRadius: 12,
+              borderLeft: '3px solid #facc15',
+            }}
+          >
+            <p style={{ fontSize: Number(graphic.style.fontSize) || 14, color: '#fff', fontStyle: 'italic', lineHeight: 1.4, margin: 0 }}>
+              {graphic.content || '"This product changed everything." — Customer'}
+            </p>
+          </div>
+        </div>
+      );
+
     default:
       return null;
   }

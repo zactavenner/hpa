@@ -23,6 +23,9 @@ import {
   Zap,
   FileText,
   ChevronDown,
+  Undo2,
+  Redo2,
+  Download,
 } from 'lucide-react';
 
 export default function EditorToolbar() {
@@ -41,6 +44,10 @@ export default function EditorToolbar() {
     removeCaption,
     selectedEffectId,
     removeEffect,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useVideoStore();
   const { getActiveKey, markKeyUsed } = useApiKeysStore();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -181,8 +188,15 @@ export default function EditorToolbar() {
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        {/* Playback */}
+        {/* Playback + Undo/Redo */}
         <div className="flex items-center gap-1 bg-surface-100 rounded-xl p-1">
+          <button onClick={() => undo()} disabled={!canUndo()} className="p-2 rounded-lg hover:bg-white text-surface-600 transition-colors disabled:opacity-30" title="Undo">
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button onClick={() => redo()} disabled={!canRedo()} className="p-2 rounded-lg hover:bg-white text-surface-600 transition-colors disabled:opacity-30" title="Redo">
+            <Redo2 className="w-4 h-4" />
+          </button>
+          <div className="w-px h-4 bg-surface-300" />
           <button onClick={() => setCurrentTime(0)} className="p-2 rounded-lg hover:bg-white text-surface-600 transition-colors" title="Restart">
             <SkipBack className="w-4 h-4" />
           </button>
@@ -234,7 +248,13 @@ export default function EditorToolbar() {
           onClick={() => setShowTemplates(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-sm transition-all"
         >
-          <Wand2 className="w-4 h-4" /> Viral Templates
+          <Wand2 className="w-4 h-4" /> Templates
+        </button>
+        <button
+          onClick={() => document.getElementById('export-panel')?.scrollIntoView({ behavior: 'smooth' })}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-sm transition-all"
+        >
+          <Download className="w-4 h-4" /> Export
         </button>
 
         {(selectedCaptionId || selectedEffectId) && (
@@ -275,6 +295,7 @@ export default function EditorToolbar() {
                 { value: 'educational' as const, label: 'Educational', desc: 'Teach and inform' },
                 { value: 'storytelling' as const, label: 'Storytelling', desc: 'Narrative arc' },
                 { value: 'promotional' as const, label: 'Promotional', desc: 'Brand focused' },
+                { value: 'direct-response' as const, label: 'Direct Response', desc: 'Pain → solution → urgency CTA' },
               ]).map((s) => (
                 <button
                   key={s.value}
